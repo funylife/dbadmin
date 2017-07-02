@@ -3,8 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script src="js/axios.min.js"></script>
+    <script src="js/vue.min.js"></script>
 </head>
 <body>
-hello spring boot
+<div id="root">
+    <div>
+        <div style="float: left; width: 220px">
+            <div style="border: 1px solid red">
+            </div>
+        </div>
+        <div style="float: left;">
+            <div style="border: 1px solid red;">
+                <textarea style="height: 150px; width: 1000px" v-model="sql"></textarea>
+                <br>
+                <input type="button" value="执行" onclick="runSql()">
+                <hr>
+                <table border="1" cellspacing="0">
+                    <tr>
+                        <td v-for="col in columns">{{col.name}}</td>
+                    </tr>
+                    <tr v-for="row in rows">
+                        <td v-for="(col, index) in columns">{{row[col.name]}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+    var vue = new Vue({
+        el: '#root',
+        data: {
+            sql: 'select * from t_article limit 0, 10',
+            columns: [],
+            rows: []
+        },
+        computed: {
+            showData: function(item, key){
+
+            }
+        }
+    });
+
+    function runSql() {
+        axios.post('/sql/run', {
+            execTtype: 'query',
+            dbName: 'deren',
+            sql: vue.sql
+        }).then(function (response) {
+            var data = response.data;
+            if(data.success){
+                Vue.set(vue, 'columns', data.data.columns);
+                Vue.set(vue, 'rows', data.data.data);
+            }
+        }).catch(function (error) {
+            console.log(error);
+        });
+    }
+
+</script>
 </body>
 </html>
